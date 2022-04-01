@@ -17,14 +17,13 @@ class CitizenController extends Controller
     {
 //        $this->middleware('logs', ['only' => ['show', 'passport', 'passportDataFromBase']]);
         $this->modelClass = new Citizen;
-        $this->repository = new CitizenRepository;
+        $this->repo = new CitizenRepository;
         $this->service = new CitizenService();
     }
     public function index(Request $request)
     {
         $citizens = $this->service->getAll($request);
-        return $citizens;
-//        return response()->successJson(['citizens' => $citizens]);
+        return response()->successJson(['citizens' => $citizens]);
     }
 
     public function store(Request $request)
@@ -34,10 +33,12 @@ class CitizenController extends Controller
 
     public function show($id)
     {
-//        dd($id);
         $citizen = $this->service->show($id);
-
-        return $citizen;
+        $this->response['result'] = [
+            'citizen' => $citizen
+        ];
+        return response()->json($this->response);
+//        return $citizen;
     }
 
     public function update(Request $request, $id)

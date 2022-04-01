@@ -29,18 +29,13 @@ Route::group([
     Route::post('me', 'AuthController@me');
 
 });
-
-Route::group([
-
-    'middleware' => 'api',
-    'prefix' => 'v1'
-
-], function ($router) {
-    Route::prefix('/citizens')->group(function () {
-        Route::get('/', 'Api\v1\CitizenController@index');
-        Route::post('/store', 'Api\v1\CitizenController@store');
-        Route::get('/show/{id}', 'Api\v1\CitizenController@show');
-        Route::put('/update/{id}', 'Api\v1\CitizenController@update');
+    Route::middleware(['auth:api'])->group(function () {
+        Route::group(['prefix' => 'v1'], function () {
+            Route::group(['prefix' => 'citizens'], function () {
+                Route::get('/', 'Api\v1\CitizenController@index');
+                Route::post('/store', 'Api\v1\CitizenController@store');
+                Route::get('/show/{id}', 'Api\v1\CitizenController@show');
+                Route::put('/update/{id}', 'Api\v1\CitizenController@update');
+            });
+        });
     });
-
-});

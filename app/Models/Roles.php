@@ -10,7 +10,7 @@ class Roles extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['user_id', 'role',];
+    protected $fillable = ['user_id', 'role'];
 
     public static function rules()
     {

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\V2\Citizen;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -15,6 +17,11 @@ class AuthController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login']]);
+        $this->response = [
+            'success' => true,
+            'result' => [],
+            'error' => []
+        ];
     }
 
     /**
@@ -24,14 +31,34 @@ class AuthController extends Controller
      */
     public function login()
     {
-        dd('hello');
         $credentials = request(['login', 'password']);
 
         if (! $token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        $this->response['success'] = true;
+        $this->response['result'] = $this->withToken($token);
+        return response()->json($this->response);
 
-        return $this->respondWithToken($token);
+    }
+    protected function withToken($token)
+    {
+        $user = Auth::user();
+
+        return [
+            'access_token' => $token,
+            'user' => $user,
+            'token_type' => 'bearer',
+            'expires_in' => Auth::factory()->getTTL() * 60
+        ];
+    }
+    protected function withUser()
+    {
+        $user = Auth::user();
+
+        return [
+            'user' => $user,
+        ];
     }
 
     /**
@@ -41,7 +68,8 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        $this->response['result'] = $this->withUser();
+        return response()->json($this->response);
     }
 
     /**

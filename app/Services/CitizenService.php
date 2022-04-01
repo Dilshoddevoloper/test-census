@@ -3,12 +3,9 @@
 namespace App\Services;
 
 use App\Models\Citizen;
-use App\Models\Tags;
 use App\Repositories\CitizenRepository;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Pagination\LengthAwarePaginator as Paginator;
-use Illuminate\Pipeline\Pipeline;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CitizenService
@@ -23,24 +20,44 @@ class CitizenService
 
     public function __construct()
     {
-        $this->repository = new CitizenRepository;
+        $this->repository = new CitizenRepository();
     }
 
     public function getAll(Request $request)
     {
-        $citizens_list = DB::table('citizens')->get();
-        $user = $this->repository->guard()->user();
-        $condition = [];
-        return $citizens_list;
+        $user = Auth::user();
+        $query = Citizen::query();
+        if ($user->role_id == Citizen::ADMIN){
+            return $query->get();
+        }
+        if ($user->role_id == Citizen::REGION){
+            $query->where(['region_id' => $user->region_id]);
+            return $query->get();
+        }
+        if ($user->role_id == Citizen::CITY){
+            $query->where(['city_id' => $user->city_id]);
+            return $query->get();
+        }
     }
-
-
     public function store($request)
     {
+        $user = Auth::user();
         $validator = $this->repository->toValidate($request->all());
+        $msg = "";
         if (!$validator->fails()){
-            $citizen = $this->repository->store($request);
-            return  $citizen;
+            if ($user->role_id == Citizen::ADMIN){
+                return response()->errorJson('Рухсат мавжуд емас', 101);
+            }
+            if ($user->role_id == Citizen::REGION){
+                return response()->errorJson('Рухсат мавжуд емас', 101);
+            }
+            if ($user->role_id == Citizen::CITY){
+                if ($request->city_id != $user->city_id){
+                    return response()->errorJson('Рухсат мавжуд емас', 101);
+                }
+                $citizen = $this->repository->store($request);
+                return response()->successJson(['citizen' => $citizen]);
+            }
         }
         else{
             $errors = $validator->failed();
@@ -54,9 +71,30 @@ class CitizenService
 
     public function show($id)
     {
-        $citizen = DB::table('citizens')->where(['id' => $id])->first();
+        $user = Auth::user();
+        $query = Citizen::query();
+        $query->where(['id' => $id]);
 
-        return $citizen;
+        if (empty($query->first())){
+            return response()->errorJson('Бундай ид ли фойдаланувчи мавжуд емас', 409);
+        }
+        if ($user->role_id == Citizen::ADMIN){
+            return $query->first();
+        }
+        if ($user->role_id == Citizen::REGION){
+            $query->where(['region_id' => $user->region_id]);
+            if (empty($query->first())){
+                return response()->errorJson('Рухсат мавжуд емас', 101);
+            }
+            return $query->first();
+        }
+        if ($user->role_id == Citizen::CITY){
+            $query->where(['city_id' => $user->city_id]);
+            if (empty($query->first())){
+                return response()->errorJson('Рухсат мавжуд емас', 101);
+            }
+            return $query->first();
+        }
     }
 
     public function update($request, $id){

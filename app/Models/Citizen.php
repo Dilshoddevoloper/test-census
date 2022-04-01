@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Citizen extends Model
 {
+    const ADMIN = 1;
+    const REGION = 2;
+    const CITY = 3;
     protected $table = 'citizens';
 
     protected $fillable = ['first_name', 'last_name', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
