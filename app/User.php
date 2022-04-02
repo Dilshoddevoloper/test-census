@@ -46,6 +46,24 @@ class User extends Authenticatable implements JWTSubject
     public function region() {
         return $this->belongsTo('App\Region', 'region_id');
     }
+    public function roles() {
+        return $this->belongsTo('App\Models\Roles', 'role_id');
+    }
+    public function isAdmin()
+    {
+        return $this->roles()->first()->name == 'operator';
+    }
+
+    public function isRegion()
+    {
+        return $this->roles()->where('name', 'region')->exists();
+    }
+
+    public function isCity()
+    {
+        return $this->roles()->where('name', 'city')->exists();
+    }
+
 
 //    public function isAdmin()
 //    {

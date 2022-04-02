@@ -32,4 +32,12 @@ class Citizen extends Model
 
         ];
     }
+
+    public function region() {
+        return $this->belongsTo('App\Region','region_id');
+    }
+    public function city() {
+        return $this->belongsTo('App\City','city_id');
+    }
+
 }

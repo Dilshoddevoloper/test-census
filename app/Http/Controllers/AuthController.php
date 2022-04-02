@@ -68,7 +68,13 @@ class AuthController extends Controller
      */
     public function me()
     {
-        $this->response['result'] = $this->withUser();
+
+            $user = Auth::user();
+            $user->region;
+            $user->city;
+            $user->roles;
+        $user = ['user' => $user];
+        $this->response['result'] = $user;
         return response()->json($this->response);
     }
 

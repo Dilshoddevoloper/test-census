@@ -36,6 +36,13 @@ Route::group([
                 Route::post('/store', 'Api\v1\CitizenController@store');
                 Route::get('/show/{id}', 'Api\v1\CitizenController@show');
                 Route::put('/update/{id}', 'Api\v1\CitizenController@update');
+                Route::delete('/destroy/{id}', 'Api\v1\CitizenController@destroy');
+            });
+            Route::group(['prefix' => 'resources'], function () {
+                Route::get('regions', 'Api\v1\ResourceController@regions');
+
+                Route::get('cities', 'Api\v1\ResourceController@cities');
             });
         });
+
     });

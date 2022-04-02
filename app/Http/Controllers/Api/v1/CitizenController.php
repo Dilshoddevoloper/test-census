@@ -23,6 +23,7 @@ class CitizenController extends Controller
     public function index(Request $request)
     {
         $citizens = $this->service->getAll($request);
+
         return response()->successJson(['citizens' => $citizens]);
     }
 
@@ -38,7 +39,6 @@ class CitizenController extends Controller
             'citizen' => $citizen
         ];
         return response()->json($this->response);
-//        return $citizen;
     }
 
     public function update(Request $request, $id)
@@ -46,6 +46,19 @@ class CitizenController extends Controller
         $citizen = $this->service->update($request, $id);
 
         return $citizen;
+    }
+
+    public function destroy($id)
+    {
+        $citizen = $this->repo->getById($id);
+        if ($citizen) {
+            $citizen->delete();
+            $this->response['success'] = true;
+        } else {
+            $this->response['success'] = false;
+            $this->response['error'] = "Citizen not found";
+        }
+        return response()->json($this->response);
     }
 
 

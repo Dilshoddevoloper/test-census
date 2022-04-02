@@ -27,6 +27,18 @@ class CitizenService
     {
         $user = Auth::user();
         $query = Citizen::query();
+
+        return [
+            'current_page' => $request->page ?? 1,
+            'per_page' => $request->limit,
+            'data' => $query
+//                ->thenReturn()
+                ->with('region:id,name_cyrl')
+                ->with('city')
+                ->get(),
+            'total' => $query->count() < $request->limit ? $citizens->count() : -1
+        ];
+
         if ($user->role_id == Citizen::ADMIN){
             return $query->get();
         }
@@ -73,7 +85,9 @@ class CitizenService
     {
         $user = Auth::user();
         $query = Citizen::query();
-        $query->where(['id' => $id]);
+        $query->where(['id' => $id])
+            ->with('region:id,name_cyrl')
+            ->with('city');
 
         if (empty($query->first())){
             return response()->errorJson('Бундай ид ли фойдаланувчи мавжуд емас', 409);
