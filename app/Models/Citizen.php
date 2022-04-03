@@ -32,6 +32,14 @@ class Citizen extends Model
 
         ];
     }
+    public function setBirthDateAttribute($value)
+    {
+        if (strpos($value, '.')) {
+            $b_date = explode(".", $value);
+            $value = $b_date[2] . "-" . $b_date[1] . "-" . $b_date[0];
+        }
+        $this->attributes['birth_date'] = $value;
+    }
 
     public function region() {
         return $this->belongsTo('App\Region','region_id');

@@ -43,10 +43,24 @@ class CitizenController extends Controller
 
     public function update(Request $request, $id)
     {
-        $citizen = $this->service->update($request, $id);
 
-        return $citizen;
+        $result = $this->service->update($request, $id);
+        if($result['status'] == 409) {
+            return response()->errorJson($result['msg'], 200, [], [], 'db');
+        }
+        if($result['status'] == 422) {
+            return response()->errorJson($result['msg'], 200, $result['error'], [], 'db');
+        }
+        return response()->successJson($result['citizen']);
     }
+
+
+//    public function update(Request $request, $id)
+//    {
+//        $citizen = $this->service->update($request, $id);
+//
+//        return $citizen;
+//    }
 
     public function destroy($id)
     {

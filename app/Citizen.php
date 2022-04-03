@@ -35,7 +35,6 @@ class Citizen extends Model
         return $this->belongsTo('App\City','city_id');
     }
 
-
     public function setBirthDateAttribute($value)
     {
         if (strpos($value, '.')) {

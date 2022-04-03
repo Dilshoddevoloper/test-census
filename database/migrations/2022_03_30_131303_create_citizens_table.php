@@ -18,12 +18,12 @@ class CreateCitizensTable extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('fathers_name');
-            $table->integer('birth_date');
+            $table->date('birth_date');
             $table->integer('region_id');
             $table->integer('city_id');
             $table->string('address');
             $table->string('passport')->unique();
-            $table->integer('tin')->unique();
+            $table->string('tin')->unique();
             $table->rememberToken();
             $table->timestamps();
         });

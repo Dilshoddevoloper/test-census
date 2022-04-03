@@ -9,6 +9,7 @@ use App\Http\Requests\City\IndexRequest as CityRequest;
 use App\Region;
 use App\Services\CityService;
 use App\Services\RegionService;
+use Illuminate\Http\Request;
 
 class ResourceController extends Controller
 {
@@ -39,8 +40,9 @@ class ResourceController extends Controller
         return response()->successJson(['regions' => $regions]);
     }
 
-    public function cities($region_id = null)
+    public function cities(Request $request)
     {
+        $region_id = $request->all()['region_id'];
         $cities = City::all();
         if ($region_id && $region_id != 'all') {
             $cities = City::where('region_id', $region_id);

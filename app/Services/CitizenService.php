@@ -28,6 +28,18 @@ class CitizenService
         $user = Auth::user();
         $query = Citizen::query();
 
+        if ($user->role_id == Citizen::ADMIN){
+            $query->get();
+        }
+        if ($user->role_id == Citizen::REGION){
+            $query->where(['region_id' => $user->region_id]);
+            $query->get();
+        }
+        if ($user->role_id == Citizen::CITY){
+            $query->where(['city_id' => $user->city_id]);
+            $query->get();
+        }
+
         return [
             'current_page' => $request->page ?? 1,
             'per_page' => $request->limit,
@@ -39,23 +51,20 @@ class CitizenService
             'total' => $query->count() < $request->limit ? $citizens->count() : -1
         ];
 
-        if ($user->role_id == Citizen::ADMIN){
-            return $query->get();
-        }
-        if ($user->role_id == Citizen::REGION){
-            $query->where(['region_id' => $user->region_id]);
-            return $query->get();
-        }
-        if ($user->role_id == Citizen::CITY){
-            $query->where(['city_id' => $user->city_id]);
-            return $query->get();
-        }
+
     }
     public function store($request)
     {
+
         $user = Auth::user();
+
         $validator = $this->repository->toValidate($request->all());
         $msg = "";
+
+        $citizen = $this->repository->store($request);
+
+        return response()->successJson(['citizen' => $citizen]);
+
         if (!$validator->fails()){
             if ($user->role_id == Citizen::ADMIN){
                 return response()->errorJson('Рухсат мавжуд емас', 101);
@@ -112,6 +121,13 @@ class CitizenService
     }
 
     public function update($request, $id){
+
+        $msg = "";
+        $validator = $this->repository->toValidate($request->all());
+
+        $citizen = $this->repository->update($request, $id);
+        return  ['status' => 200, 'citizen' => $citizen];
+
         $citizen = DB::table('citizens')->where(['id' => $id])->first();
 
 

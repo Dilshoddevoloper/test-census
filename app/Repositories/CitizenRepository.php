@@ -31,15 +31,15 @@ class CitizenRepository
 
     public function store($request)
     {
-        $user = $this->guard()->user();
+        $user = Auth::user();
 
         $citizen = $this->model::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'fathers_name' => $request->fathers_name,
             'birth_date' => $request->birth_date,
-            'region_id' => $request->region_id,
-            'city_id' => $request->city_id,
+            'region_id' => $user->region_id,
+            'city_id' => $user->city_id,
             'address' => $request->address,
             'passport' => $request->passport,
             'tin' => $request->tin,
@@ -115,11 +115,25 @@ class CitizenRepository
     }
     public function update($request, $id)
     {
-        $citizen = $this->getById($id);
+        $user = $this->guard()->user();
+        $citizen  = Citizen::find($id);
+//        $citizen = $this->getById($id);
 
-        dd($citizen);
+        $citizen->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'fathers_name' => $request->fathers_name,
+            'birth_date' => $request->birth_date,
+            'region_id' => $user->region_id,
+            'city_id' => $user->city_id,
+            'address' => $request->address,
+            'passport' => $request->passport,
+            'tin' => $request->tin,
+            'updated_at' => Carbon::now()->format('Y-m-d'),
+        ]);
 
-        return $user->is_read;
+
+
         $data['citizen']=$citizen;
 
         return $data;
