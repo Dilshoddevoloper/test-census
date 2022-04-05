@@ -43,6 +43,7 @@ class CitizenRepository
             'address' => $request->address,
             'passport' => $request->passport,
             'tin' => $request->tin,
+            'social_areas_id' => $request->social_areas_id,
             'created_at' => Carbon::now()->format('Y-m-d'),
         ]);
 
@@ -125,6 +126,7 @@ class CitizenRepository
             'fathers_name' => $request->fathers_name,
             'birth_date' => $request->birth_date,
             'region_id' => $user->region_id,
+            'social_areas_id' => $request->social_areas_id,
             'city_id' => $user->city_id,
             'address' => $request->address,
             'passport' => $request->passport,
@@ -198,15 +200,15 @@ class CitizenRepository
     public function toValidate($array, $status = null)
     {
         $rules = [
-            'first_name' => 'nullable',
-            'last_name' => 'nullable',
-            'fathers_name' => 'nullable',
-            'birth_date' => 'nullable',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'fathers_name' => 'required',
+            'birth_date' => 'required',
             'region_id' => 'nullable',
             'city_id' => 'nullable',
-            'address' => 'nullable',
-            'passport' => 'nullable',
-            'tin' => 'nullable',
+            'address' => 'required',
+            'passport' => 'required',
+            'tin' => 'required',
             'remember_token' => 'nullable',
             'created_at' => 'nullable',
             'updated_at' => 'nullable',

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Roles extends Model
 {
+    const ADMIN_ID = 1;
+    const REGION_ID = 2;
+    const CITY_ID = 3;
     protected $table = 'roles';
 
     public $timestamps = false;

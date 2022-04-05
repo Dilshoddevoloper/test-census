@@ -24,6 +24,7 @@ class CreateCitizensTable extends Migration
             $table->string('address');
             $table->string('passport')->unique();
             $table->string('tin')->unique();
+            $table->integer('social_areas_id');
             $table->rememberToken();
             $table->timestamps();
         });

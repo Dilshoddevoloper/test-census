@@ -12,16 +12,16 @@ class Citizen extends Model
     public static function rules()
     {
         return [
-            'first_name' => 'string|nullable',
-            'last_name' => 'string|nullable',
-            'fathers_name' => 'string|nullable',
-            'birth_date' => 'integer|nullable',
+            'first_name' => 'string|required',
+            'last_name' => 'string|required',
+            'fathers_name' => 'string|required',
+            'birth_date' => 'integer|required',
             'region_id' => 'integer|nullable',
             'city_id' => 'integer|nullable',
-            'address' => 'string|nullable',
-            'password' => 'string|nullable',
-            'passport' => 'string|nullable',
-            'tin' => 'integer|nullable',
+            'address' => 'string|required',
+            'password' => 'string|required',
+            'passport' => 'string|required',
+            'tin' => 'integer|required',
             'remember_token' => 'string|nullable',
             'created_at' => 'datetime|nullable',
             'updated_at' => 'datetime|nullable',
@@ -39,7 +39,7 @@ class Citizen extends Model
     {
         if (strpos($value, '.')) {
             $b_date = explode(".", $value);
-            $value = $b_date[2] . "-" . $b_date[1] . "-" . $b_date[0];
+            $value = $b_date[2] . "*" . $b_date[1] . "-" . $b_date[0];
         }
         $this->attributes['birth_date'] = $value;
     }

@@ -40,9 +40,11 @@ Route::group([
             });
             Route::group(['prefix' => 'resources'], function () {
                 Route::get('regions', 'Api\v1\ResourceController@regions');
-
+                Route::get('social_areas', 'Api\v1\ResourceController@social_areas');
                 Route::get('cities', 'Api\v1\ResourceController@cities');
             });
+
+//            Route::get('reports', 'ReportController@report');
         });
 
     });

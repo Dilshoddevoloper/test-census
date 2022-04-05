@@ -7,6 +7,8 @@ use App\Repositories\CitizenRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Roles;
+
 
 class CitizenService
 {
@@ -16,8 +18,6 @@ class CitizenService
      */
     private $repository;
 
-    const REGION_ID = 21;
-
     public function __construct()
     {
         $this->repository = new CitizenRepository();
@@ -26,29 +26,55 @@ class CitizenService
     public function getAll(Request $request)
     {
         $user = Auth::user();
-        $query = Citizen::query();
+        $query = Citizen::query()
+            ->with('region:id,name_cyrl')
+            ->with('city')
+            ->with('social_areas');
 
-        if ($user->role_id == Citizen::ADMIN){
-            $query->get();
-        }
-        if ($user->role_id == Citizen::REGION){
+        if ($user->role_id == Roles::REGION_ID){
             $query->where(['region_id' => $user->region_id]);
-            $query->get();
         }
-        if ($user->role_id == Citizen::CITY){
+        if ($user->role_id == Roles::CITY_ID){
             $query->where(['city_id' => $user->city_id]);
-            $query->get();
         }
 
+        if (!empty($request->all()['region_id'])){
+            $query->where(['region_id' => $request->all()['region_id']]);
+        }
+        if (!empty($request->all()['city_id'])){
+            $query->where(['city_id' => $request->all()['city_id']]);
+        }
+        if (!empty($request->all()['social_areas_id'])){
+            $query->where(['social_areas_id' => $request->all()['social_areas_id']]);
+        }
+        if (!empty($request->all()['last_name'])){
+            $query->where('citizens.last_name', 'like', '%'. $request->all()['last_name'].'%');
+        }
+        if (!empty($request->all()['first_name'])){
+            $query->where('citizens.first_name', 'like', '%'. $request->all()['first_name'].'%');
+        }
+        if (!empty($request->all()['fathers_name'])){
+            $query->where('citizens.fathers_name', 'like', '%'. $request->all()['fathers_name'].'%');
+        }
+        if (!empty($request->all()['passport'])){
+            $query->where('citizens.passport', 'like', '%'. $request->all()['passport'].'%');
+        }
+
+//        $citizens = $query->paginate(2)->toArray();
+//
+//        unset($citizens['first_page_url']);
+//        unset($citizens['last_page_url']);
+//        unset($citizens['next_page_url']);
+//        unset($citizens['prev_page_url']);
+//        unset($citizens['path']);
+//        return $citizens;
+
+        return $query->paginate(30);
         return [
             'current_page' => $request->page ?? 1,
             'per_page' => $request->limit,
-            'data' => $query
-//                ->thenReturn()
-                ->with('region:id,name_cyrl')
-                ->with('city')
-                ->get(),
-            'total' => $query->count() < $request->limit ? $citizens->count() : -1
+            'data' =>$query->get(),
+            'total' => $query->count() < $request->limit ? $query->count() : -1
         ];
 
 
@@ -61,21 +87,20 @@ class CitizenService
         $validator = $this->repository->toValidate($request->all());
         $msg = "";
 
-        $citizen = $this->repository->store($request);
+//        $citizen = $this->repository->store($request);
 
-        return response()->successJson(['citizen' => $citizen]);
+//        return response()->successJson(['citizen' => $citizen]);
 
         if (!$validator->fails()){
-            if ($user->role_id == Citizen::ADMIN){
+
+
+            if ($user->role_id == Roles::ADMIN_ID){
                 return response()->errorJson('Рухсат мавжуд емас', 101);
             }
-            if ($user->role_id == Citizen::REGION){
+            if ($user->role_id == Roles::REGION_ID){
                 return response()->errorJson('Рухсат мавжуд емас', 101);
             }
-            if ($user->role_id == Citizen::CITY){
-                if ($request->city_id != $user->city_id){
-                    return response()->errorJson('Рухсат мавжуд емас', 101);
-                }
+            if ($user->role_id == Roles::CITY_ID){
                 $citizen = $this->repository->store($request);
                 return response()->successJson(['citizen' => $citizen]);
             }
@@ -88,6 +113,7 @@ class CitizenService
             return response()->errorJson($msg, 400, $errors);
         }
 
+
     }
 
     public function show($id)
@@ -96,22 +122,23 @@ class CitizenService
         $query = Citizen::query();
         $query->where(['id' => $id])
             ->with('region:id,name_cyrl')
-            ->with('city');
+            ->with('city')
+            ->with('social_areas:id,name_cyrl');;
 
         if (empty($query->first())){
             return response()->errorJson('Бундай ид ли фойдаланувчи мавжуд емас', 409);
         }
-        if ($user->role_id == Citizen::ADMIN){
+        if ($user->role_id == Roles::ADMIN_ID){
             return $query->first();
         }
-        if ($user->role_id == Citizen::REGION){
+        if ($user->role_id == Roles::REGION_ID){
             $query->where(['region_id' => $user->region_id]);
             if (empty($query->first())){
                 return response()->errorJson('Рухсат мавжуд емас', 101);
             }
             return $query->first();
         }
-        if ($user->role_id == Citizen::CITY){
+        if ($user->role_id == Roles::CITY_ID){
             $query->where(['city_id' => $user->city_id]);
             if (empty($query->first())){
                 return response()->errorJson('Рухсат мавжуд емас', 101);
@@ -125,12 +152,16 @@ class CitizenService
         $msg = "";
         $validator = $this->repository->toValidate($request->all());
 
-        $citizen = $this->repository->update($request, $id);
-        return  ['status' => 200, 'citizen' => $citizen];
-
-        $citizen = DB::table('citizens')->where(['id' => $id])->first();
-
-
+        if (!$validator->fails()) {
+                $citizen = $this->repository->update($request, $id);
+                return  ['status' => 200, 'citizen' => $citizen];
+        } else {
+            $errors = $validator->failed();
+            if(empty($errors)) {
+                $msg = "Соҳалар нотўғри киритилди";
+            }
+            return ['msg' => $msg, 'status' => 422, 'error' => $errors];
+        }
     }
 
 
