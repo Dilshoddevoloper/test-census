@@ -69,7 +69,7 @@ class CitizenService
 //        unset($citizens['path']);
 //        return $citizens;
 
-        return $query->paginate(30);
+        return $query->paginate(100);
         return [
             'current_page' => $request->page ?? 1,
             'per_page' => $request->limit,

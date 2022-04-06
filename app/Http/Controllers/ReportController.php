@@ -15,20 +15,35 @@ class ReportController extends Controller
 
     public function Report(Request $request)
     {
-//        return "hello";
-//        $report = DB::table('citizens')
-//            ->select(DB::raw("EXTRACT(YEAR FROM citizens.created_at) as year, EXTRACT(MONTH FROM citizens.created_at) as month"),
-//                DB::raw('COUNT(citizens.id) as citizens'),
-//                DB::raw('COUNT(citizens.region_id = 8) as qoraqalpoq'),
-////                DB::raw("sum(case when citizens.region_id=10 then 1 else 0 end) as count_advice"),
-////                DB::raw("sum(case when citizen_services.service_id=11 then 1 else 0 end) as count_employment"),
-////                DB::raw("sum(case when citizen_services.service_id=12 then 1 else 0 end) as count_employment_abroad"),
-////                DB::raw("sum(case when citizen_services.service_id=13 then 1 else 0 end) as count_staffing_employer")
-//            )
-////            ->whereBetween('citizens.service_id', [10, 13])
-//            ->groupBy('year', 'month')
-//            ->orderBy('year')
-//            ->get()->toArray();
-//        return $report;
+//        DB::table('regions')->leftJoin('citizens', function ($join) {
+//            $join->on('regions.id', '=', 'citizens.region_id');
+//        })
+        $report = DB::table('citizens')
+            ->leftJoin('regions','regions.id','citizens.region_id')
+            ->select(
+                DB::raw('citizens.regions. as region'),
+                DB::raw("sum(case when citizens.social_areas_id=1 then 1 else 0 end) as social1"),
+                DB::raw("sum(case when citizens.social_areas_id=2 then 1 else 0 end) as social2"),
+                DB::raw("sum(case when citizens.social_areas_id=3 then 1 else 0 end) as social3"),
+                DB::raw("sum(case when citizens.social_areas_id=4 then 1 else 0 end) as social4"),
+                DB::raw("sum(case when citizens.social_areas_id=5 then 1 else 0 end) as social5"),
+                DB::raw("sum(case when citizens.social_areas_id=6 then 1 else 0 end) as social6"),
+                DB::raw("sum(case when citizens.social_areas_id=7 then 1 else 0 end) as social7"),
+                DB::raw("sum(case when citizens.social_areas_id=8 then 1 else 0 end) as social8"),
+                DB::raw("sum(case when citizens.social_areas_id=9 then 1 else 0 end) as social9"),
+                DB::raw("sum(case when citizens.social_areas_id=10 then 1 else 0 end) as social10"),
+                DB::raw("sum(case when citizens.social_areas_id=11 then 1 else 0 end) as social11"),
+                DB::raw("sum(case when citizens.social_areas_id=12 then 1 else 0 end) as social12"),
+                DB::raw("sum(case when citizens.social_areas_id=13 then 1 else 0 end) as social13"),
+                DB::raw("sum(case when citizens.social_areas_id=14 then 1 else 0 end) as social14"),
+                DB::raw("sum(case when citizens.social_areas_id=15 then 1 else 0 end) as social15"),
+                DB::raw("sum(case when citizens.social_areas_id=16 then 1 else 0 end) as social16"),
+                DB::raw("sum(case when citizens.social_areas_id=17 then 1 else 0 end) as social17"),
+                DB::raw("sum(case when citizens.social_areas_id=18 then 1 else 0 end) as social18"),
+            )
+            ->groupBy('region_id')
+            ->orderBy('region_id')
+            ->get()->toArray();
+        return response()->successJson(['report' => $report]);
     }
 }

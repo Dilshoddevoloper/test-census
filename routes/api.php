@@ -44,7 +44,7 @@ Route::group([
                 Route::get('cities', 'Api\v1\ResourceController@cities');
             });
 
-//            Route::get('reports', 'ReportController@report');
+            Route::get('report', 'ReportController@report');
         });
 
     });
