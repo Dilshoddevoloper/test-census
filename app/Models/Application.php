@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-class Citizen extends Model
+
+class Application extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $table = 'citizens';
+    protected $table = 'applications';
 
-    protected $fillable = ['first_name', 'phone','last_name', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
+    protected $fillable = ['first_name','social_areas_id','number','code','status', 'phone','last_name', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
+
+    const NEW_USER = 0;
+    const CONFIRMED = 1;
+    const REJECTED = 3;
 
     public static function rules()
     {
@@ -20,7 +25,7 @@ class Citizen extends Model
             'fathers_name' => 'string|required',
             'phone' => 'string|required',
             'birth_date' => 'integer|required',
-            'region_id' => 'integer|nullable',
+            'region_id' => 'integer|required',
             'city_id' => 'integer|nullable',
             'address' => 'string|required',
             'password' => 'string|required',
@@ -30,7 +35,6 @@ class Citizen extends Model
             'remember_token' => 'string|nullable',
             'created_at' => 'datetime|nullable',
             'updated_at' => 'datetime|nullable',
-
         ];
     }
     public function setBirthDateAttribute($value)
@@ -46,6 +50,18 @@ class Citizen extends Model
         return date('d.m.Y', strtotime($this->attributes['birth_date']));
     }
 
+    public function setPassportAttribute($value)
+    {
+        $this->attributes['passport']  = str_replace(' ','', $value);
+    }
+
+    public function setNumberAttribute(){
+        $this->attributes['number'] = mt_rand(100000,999999);
+    }
+    public function setCodeAttribute(){
+        $this->attributes['code'] = mt_rand(10000,99999);
+    }
+
     public function region() {
         return $this->belongsTo('App\Region','region_id');
     }
@@ -55,5 +71,4 @@ class Citizen extends Model
     public function social_areas() {
         return $this->belongsTo('App\SocialAreas','social_areas_id');
     }
-
 }

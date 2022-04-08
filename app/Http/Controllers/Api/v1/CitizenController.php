@@ -75,6 +75,30 @@ class CitizenController extends Controller
         return response()->json($this->response);
     }
 
+    /**
+     * restore specific post
+     *
+     * @return void
+     */
+    public function restore($id)
+    {
+        Citizen::withTrashed()->find($id)->restore();
+        $this->response['success'] = true;
+        return response()->json($this->response);
+    }
+
+    /**
+     * restore all post
+     *
+     * @return response()
+     */
+    public function restoreAll()
+    {
+        Citizen::onlyTrashed()->restore();
+        $this->response['success'] = true;
+        return response()->json($this->response);
+    }
+
 
 
 }

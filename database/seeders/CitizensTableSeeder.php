@@ -33,6 +33,7 @@ class CitizensTableSeeder extends Seeder
             DB::table('citizens')->insert([
                 'first_name' => $faker->firstName,
                 'last_name' => $faker->lastName,
+                'phone' => $faker->phoneNumber,
                 'fathers_name' => $faker->name,
                 'birth_date' => $faker->dateTimeThisCentury->format('Y-m-d'),
                 'region_id' => $city->region_id,
