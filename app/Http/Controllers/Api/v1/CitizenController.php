@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Controllers\Api\v1;
 
+use App\Models\City;
 use App\Services\CitizenService;
-use App\Citizen;
+use App\Models\Citizen;
+//use App\Citizen;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\CitizenRepository;
@@ -15,7 +17,6 @@ class CitizenController extends Controller
     protected $response;
     public function __construct()
     {
-//        $this->middleware('logs', ['only' => ['show', 'passport', 'passportDataFromBase']]);
         $this->modelClass = new Citizen;
         $this->repo = new CitizenRepository;
         $this->service = new CitizenService();
@@ -35,69 +36,66 @@ class CitizenController extends Controller
     public function show($id)
     {
         $citizen = $this->service->show($id);
-        $this->response['result'] = [
-            'citizen' => $citizen
-        ];
+        $this->response['result'] = ['citizen' => $citizen ];
         return response()->json($this->response);
     }
 
     public function update(Request $request, $id)
     {
 
-        $result = $this->service->update($request, $id);
-        if($result['status'] == 409) {
-            return response()->errorJson($result['msg'], 200, [], [], 'db');
-        }
-        if($result['status'] == 422) {
-            return response()->errorJson($result['msg'], 200, $result['error'], [], 'db');
-        }
-        return response()->successJson($result['citizen']);
+        return $this->service->update($request, $id);
     }
-
-
-//    public function update(Request $request, $id)
-//    {
-//        $citizen = $this->service->update($request, $id);
-//
-//        return $citizen;
-//    }
 
     public function destroy($id)
     {
-        $citizen = $this->repo->getById($id);
-        if ($citizen) {
-            $citizen->delete();
-            $this->response['success'] = true;
-        } else {
-            $this->response['success'] = false;
-            $this->response['error'] = "Citizen not found";
+        return $this->service->destroy($id);
+    }
+
+    public function  getPassport(Request $request){
+        if(!empty($request->passport) && !empty($request->tin)) {
+            $data = $this->service->getPassport($request->passport, $request->tin);
+//            return $data;
+            $user = $this->repo->getAuth();
+            $citizen = [
+                'last_name' => $data['result']['surname_latin'],
+                "first_name" => $data['result']['name_latin'],
+                "fathers_name" => $data['result']['patronym_latin'],
+                "birth_date" => date('d.m.Y', strtotime($data['result']['birth_date'])),
+                'region_id' => $user->region_id,
+                'city_id' => $user->id,
+                "address" => $data['result']['birth_place'],
+                "passport" => $data['result']['document'],
+                "id" => null
+            ];
+
         }
-        return response()->json($this->response);
+
+        return ['status' => 200, 'citizen' => $citizen];
     }
 
-    /**
-     * restore specific post
-     *
-     * @return void
-     */
-    public function restore($id)
-    {
-        Citizen::withTrashed()->find($id)->restore();
-        $this->response['success'] = true;
-        return response()->json($this->response);
-    }
+//    /**
+//     * restore specific post
+//     *
+//     * @return void
+//     */
+//    public function restore($id)  //bu softdelete  uchun ishlatiladi, bizga kerak bo'lmagani uchun o'chirilgan
+//    {
+//        Citizen::withTrashed()->find($id)->restore();
+//        $this->response['success'] = true;
+//        return response()->json($this->response);
+//    }
 
-    /**
-     * restore all post
-     *
-     * @return response()
-     */
-    public function restoreAll()
-    {
-        Citizen::onlyTrashed()->restore();
-        $this->response['success'] = true;
-        return response()->json($this->response);
-    }
+//    /**
+//     * restore all post
+//     *
+//     * @return response()
+//     */
+//    public function restoreAll() //bu softdelete  uchun ishlatiladi, bizga kerak bo'lmagani uchun o'chirilgan
+//    {
+//        Citizen::onlyTrashed()->restore();
+//        $this->response['success'] = true;
+//        return response()->json($this->response);
+//    }
 
 
 

@@ -27,8 +27,10 @@ class CreateApplicationsTable extends Migration
             $table->string('address');
             $table->string('passport')->unique();
             $table->string('tin')->unique();
-            $table->integer('number');
+            $table->string('number');
             $table->integer('code');
+            $table->smallInteger('deny_reason_id')->nullable();
+            $table->string('deny_reason')->nullable();
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

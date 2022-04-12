@@ -10,7 +10,7 @@ class Citizen extends Model
     use HasFactory, SoftDeletes;
     protected $table = 'citizens';
 
-    protected $fillable = ['first_name', 'phone','last_name', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
+    protected $fillable = ['first_name', 'phone','last_name','social_areas_id', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
 
     public static function rules()
     {

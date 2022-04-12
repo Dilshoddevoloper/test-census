@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\ApplicationDenyReason;
+use Database\Seeders\ApplicationDenyReasonsSeeder;
 use Database\Seeders\CitiesTableSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\RegionsTableSeeder;
@@ -15,6 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // User::factory(10)->create();
+        $this->call(ApplicationDenyReasonsSeeder::class);
         $this->call(RolesTableSeeder::class);
         $this->call(UsersTableSeeder::class);
         $this->call(RegionsTableSeeder::class);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ApplicationDenyReason;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +12,7 @@ class Application extends Model
     use HasFactory, SoftDeletes;
     protected $table = 'applications';
 
-    protected $fillable = ['first_name','social_areas_id','number','code','status', 'phone','last_name', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
+    protected $fillable = ['first_name','social_areas_id','deny_reason', 'deny_reason_id', 'number','code','status', 'phone','last_name', 'fathers_name', 'birth_date', 'region_id', 'city_id', 'address', 'password', 'passport', 'tin', 'remember_token', 'created_at', 'updated_at',];
 
     const NEW_USER = 0;
     const CONFIRMED = 1;
@@ -55,9 +56,6 @@ class Application extends Model
         $this->attributes['passport']  = str_replace(' ','', $value);
     }
 
-    public function setNumberAttribute(){
-        $this->attributes['number'] = mt_rand(100000,999999);
-    }
     public function setCodeAttribute(){
         $this->attributes['code'] = mt_rand(10000,99999);
     }
@@ -70,5 +68,8 @@ class Application extends Model
     }
     public function social_areas() {
         return $this->belongsTo('App\SocialAreas','social_areas_id');
+    }
+    public function applicationDenyReason() {
+        return $this->belongsTo(ApplicationDenyReason::class,'deny_reason_id');
     }
 }

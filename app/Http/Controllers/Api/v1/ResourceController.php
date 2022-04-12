@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\SmsController;
 use App\Http\Requests\Region\IndexRequest as RegionRequest;
 use App\Http\Requests\City\IndexRequest as CityRequest;
+use App\Models\ApplicationDenyReason;
 use App\PhoneCode;
 use App\Region;
+use App\Services\ApplicationDenyReasonsService;
 use App\Services\CityService;
 use App\Services\RegionService;
 use App\SocialAreas;
@@ -19,28 +21,37 @@ class ResourceController extends Controller
 {
     private $regionService;
     private $cityService;
+    private $denyReasonsService;
 
-    public function __construct(RegionService $regionService, CityService $cityService)
+    public function __construct(RegionService $regionService, CityService $cityService, ApplicationDenyReasonsService $denyReasonsService)
     {
         $this->regionService = $regionService;
         $this->cityService = $cityService;
+        $this->denyReasonsService = $denyReasonsService;
     }
 
     public function regions(Region $region)
     {
-        $regions = Region::all();
+        $regions = $this->regionService->getAll();
         return response()->successJson(['regions' => $regions]);
     }
 
     public function social_areas(SocialAreas $social_areas)
     {
-        $social_areas = SocialAreas::all();
+        $social_areas = $this->cityService->getAll();
         return response()->successJson(['social_areas' => $social_areas]);
+    }
+
+    public function denyReasons(ApplicationDenyReason $denyReasons)
+    {
+        $denyReasons = $this->denyReasonsService->getAll();
+        return response()->successJson(['denyReasons' => $denyReasons]);
     }
 
     public function cities(Request $request)
     {
-        $cities = City::query();
+
+        $cities = $this->cityService->getQuery();
         if (!empty($request->all()['region_id'])) {
             $cities->where('region_id', $request->all()['region_id']);
         }
@@ -52,7 +63,7 @@ class ResourceController extends Controller
     {
         $code = rand(11111, 99999);
         PhoneCode::updateOrCreate(['phone' => $phone],['code' => $code]);
-        $message = 'dmi.mehnat.uz saytiga kirish uchun kod: ' . $code;
+        $message = 'Ushbu kod sizga bazani test qilish uchun yuborildi: ' . $code;
 
         $details = SmsController::send($phone, $message);
 
@@ -74,10 +85,7 @@ class ResourceController extends Controller
 
     public function confirmSms(Request $request)
     {
-
-//        $result = $this->service->confirmSms($request->all());
         $attibutes = $request->all();
-
 
         $validator = Validator::make($attibutes, [
             'phone' => 'required',
@@ -86,33 +94,14 @@ class ResourceController extends Controller
 
         if ($validator->fails()) {
             return response()->errorJson('Code does not match', 422);
-
         }
-
         $phone_code = PhoneCode::where(['phone' => $attibutes['phone'], 'code' => $attibutes['code']])->first();
-//        return $attibutes['phone'];
 
         if($phone_code) {
             $phone_code->delete();
-//            return ['msg'=>'Success!, Code match', 'status', 'status' => 200]
                 return response()->successJson('Success!, Code match');
         } else {
-//            return ['msg'=>'Code does not match', 'status'=>422];
             return response()->errorJson('Code does not match',422);
-        }
-
-
-
-//        if ($result['msg'] === 'Validation fails') {
-//            return response()->errorJson($result['msg'], $result['status'], $result['error']);
-//        }
-
-//        if ($result['msg'] === 'Success!, Code match') {
-//            return response()->successJson($result['msg']);
-//        }
-
-        if ($result['msg'] === 'Code does not match') {
-            return response()->errorJson($result['msg'], $result['status']);
         }
     }
 

@@ -4,34 +4,55 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Repositories\CitizenRepository;
+use App\Services\ApplicationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
 {
+    private $service;
+
+    public function __construct()
+    {
+//        $this->middleware('logs', ['only' => ['show', 'passport', 'passportDataFromBase']]);
+        $this->modelClass = new Application();
+        $this->repo = new CitizenRepository;
+        $this->service = new ApplicationService();
+    }
+
+    public function index(Request $request)
+    {
+        $applications = $this->service->getAll($request);
+
+        return response()->successJson(['applications' => $applications]);
+    }
+
+    public function confirm($id)
+    {
+        return $this->service->getConfirm($id);
+    }
+
+    public function show($id){
+        return $this->service->getShow($id);
+    }
+
     public function store(Request $request)
     {
-        return $request;
-        $user = Auth::user();
 
-        $application = Application::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'fathers_name' => $request->fathers_name,
-            'phone' => $request->phone,
-            'birth_date' => $request->birth_date,
-            'region_id' => $request->region_id,
-            'city_id' => $request->city_id,
-            'address' => $request->address,
-            'passport' => $request->passport,
-            'tin' => $request->tin,
-            'social_areas_id' => $request->social_areas_id,
-            'number' => $request->number,
-            'code' => $request->code,
-            'created_at' => Carbon::now()->format('Y-m-d'),
-        ]);
+        return $this->service->getStore($request);
+    }
 
-        return response()->successJson(['citizen' => $application]);
+    public function update(Request $request){
+        return $this->service->update($request);
+    }
+
+    public function checkStatusApplication(Request $request)
+    {
+        $application = $this->service->checkStatusApplication($request->all());
+
+        if($application) return response()->successJson(['application' => $application]);
+
+        return response()->errorJson('Application not found', 404);
     }
 }

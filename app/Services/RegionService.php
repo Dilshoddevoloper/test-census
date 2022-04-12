@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Region;
 use App\Repositories\RegionRepository;
 
 class RegionService extends BaseService
@@ -18,5 +19,9 @@ class RegionService extends BaseService
         $this->attributes = ['*'];
 
         $this->sort_fields = [];
+    }
+
+    public function getAll(){
+        return Region::all();
     }
 }
